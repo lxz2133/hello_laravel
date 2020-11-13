@@ -15,8 +15,8 @@ class SessionsController extends Controller
     public function store(Request $request)
     {
         $credentials = $this->validate($request, [
-            'email' => 'require|email|max:255',
-            'password' => 'require'
+            'email' => 'required|email|max:255',
+            'password' => 'required'
         ]);
 
         if (Auth::attempt($credentials)) {
