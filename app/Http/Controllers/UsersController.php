@@ -82,7 +82,7 @@ class UsersController extends Controller
         Auth::login($user);
         session()->flash('success', '欢迎，您将在这里开启一段新的旅程~');
 
-        return redirect()->route('users.show', [$user]);
+        return redirect()->route('users.show', $user);
     }
 
     /**
@@ -107,5 +107,18 @@ class UsersController extends Controller
         session()->flash('success', '个人资料更新成功！');
 
         return redirect()->route('users.show', $user);
+    }
+
+    /**
+     * @param User $user
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Exception
+     */
+    public function destroy(User $user)
+    {
+        $user->delete();
+        session()->flash('success', '成功删除用户！');
+
+        return redirect()->back();
     }
 }

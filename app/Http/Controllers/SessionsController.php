@@ -39,11 +39,9 @@ class SessionsController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->has('remember'))) {
-            $user = Auth::user();
-
             session()->flash('success', '欢迎回来！');
 
-            return redirect()->intended(route('users.show', compact('user')));
+            return redirect()->intended(route('users.show', Auth::user()));
         } else {
             // 登录失败
             session()->flash('danger', '很抱歉，您的邮箱和密码不匹配');
