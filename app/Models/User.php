@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 /**
  * App\Models\User
@@ -33,6 +34,10 @@ use Illuminate\Notifications\Notifiable;
  * @mixin \Eloquent
  * @property int $is_admin
  * @method static \Illuminate\Database\Eloquent\Builder|User whereIsAdmin($value)
+ * @property string|null $activation_token
+ * @property int $activated
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereActivated($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereActivationToken($value)
  */
 class User extends Authenticatable
 {
@@ -65,6 +70,19 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function (User $user) {
+            $user->activation_token = Str::random(10);
+        });
+    }
+
+    /**
+     * @param string $size
+     * @return string
+     */
     public function gravatar($size = '100')
     {
         $hash = md5(strtolower(trim($this->attributes['email'])));

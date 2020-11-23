@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Auth;
 
@@ -38,16 +39,28 @@ class SessionsController extends Controller
             'password' => 'required'
         ]);
 
-        if (Auth::attempt($credentials, $request->has('remember'))) {
-            session()->flash('success', '欢迎回来！');
-
-            return redirect()->intended(route('users.show', Auth::user()));
-        } else {
-            // 登录失败
+        // 登录失败
+        if (!Auth::attempt($credentials, $request->has('remember'))) {
             session()->flash('danger', '很抱歉，您的邮箱和密码不匹配');
 
             return redirect()->back()->withInput();
         }
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        // 账号未激活
+        if (!$user->activated) {
+            // 登出
+            Auth::logout();
+            session()->flash('warning', '您的账号未激活，请检查邮箱中的注册邮件进行激活。');
+
+            return redirect('/');
+        }
+
+        session()->flash('success', '欢迎回来！');
+
+        return redirect()->intended(route('users.show', Auth::user()));
     }
 
     /**
@@ -58,6 +71,6 @@ class SessionsController extends Controller
         Auth::logout();
         session()->flash('success', '您已成功退出！');
 
-        return redirect('login');
+        return redirect()->route('login');
     }
 }
